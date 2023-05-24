@@ -10,7 +10,8 @@ conn = mysql.connector.connect(
 )
 
 # Function to display table data
-def display_table(table_name, limit=10):
+def display_table(table_name, limit=10, hide_password=False):
+    
     cursor = conn.cursor()
     query = f"SELECT * FROM {table_name} LIMIT {limit}"
     cursor.execute(query)
@@ -18,13 +19,20 @@ def display_table(table_name, limit=10):
 
     # Create a pretty table
     table = PrettyTable()
-    table.field_names = cursor.column_names
-    table.add_rows(rows)
+    table.field_names = [desc[0] for desc in cursor.description]
+
+    # Add rows to the table
+    for row in rows:
+        # Check if password hiding is enabled
+        if hide_password:
+            # Create a new row with asterisks (*) in place of the password
+            hidden_row = [cell if column != "password" else "*" * len(str(cell)) for column, cell in zip(cursor.column_names, row)]
+            table.add_row(hidden_row)
+        else:
+            table.add_row(row)
 
     # Print the table
     print(table)
-
-    cursor.close()
 
 # Function to display options
 def display_options():
@@ -43,7 +51,7 @@ while True:
 
     if choice == "1":
         # View Students
-        display_table("users")
+        display_table("users", hide_password=True)
     elif choice == "2":
         # View Books
         display_table("books", limit=10)
