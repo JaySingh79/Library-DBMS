@@ -11,7 +11,6 @@ conn = mysql.connector.connect(
 
 # Function to display table data
 def display_table(table_name, limit=10, hide_password=False):
-    
     cursor = conn.cursor()
     query = f"SELECT * FROM {table_name} LIMIT {limit}"
     cursor.execute(query)
@@ -54,7 +53,14 @@ while True:
         display_table("users", hide_password=True)
     elif choice == "2":
         # View Books
-        display_table("books", limit=10)
+        limit = 10
+        while True:
+            display_table("books", limit=limit)
+            more_books = input("Display more books? (Y/N): ")
+            if more_books.upper() == "Y":
+                limit += 10
+            else:
+                break
     elif choice == "3":
         # View Borrowings
         display_table("borrowings")
